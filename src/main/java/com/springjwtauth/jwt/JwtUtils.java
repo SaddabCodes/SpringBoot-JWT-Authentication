@@ -1,7 +1,9 @@
 package com.springjwtauth.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +23,7 @@ public class JwtUtils {
     @Value("${spring.app.jwtExpirationMs}")
     private Long jwtExpirationsMs;
 
-    private String getJwtFromHeader(HttpServletRequest request) {
+    public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
 
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
@@ -58,13 +60,15 @@ public class JwtUtils {
         try {
             System.out.println("Validate");
             Jwts.parserBuilder()
+                    .setSigningKey(key())
                     .build()
                     .parseClaimsJws(authToken);
+            return true;
         } catch (MalformedJwtException e) {
             System.out.println("Invalid JWT token: " + e.getMessage());
-        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+        } catch (ExpiredJwtException e) {
             System.out.println("JWT token is expired: " + e.getMessage());
-        } catch (io.jsonwebtoken.UnsupportedJwtException e) {
+        } catch (UnsupportedJwtException e) {
             System.out.println("JWT token is unsupported: " + e.getMessage());
         } catch (IllegalArgumentException e) {
             System.out.println("JWT claims string is empty: " + e.getMessage());
