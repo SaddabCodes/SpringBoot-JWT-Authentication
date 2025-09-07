@@ -16,16 +16,13 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
-
     @Value("${spring.app.jwtSecret}")
     private String jwtSecret;
-
     @Value("${spring.app.jwtExpirationMs}")
     private Long jwtExpirationsMs;
 
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
@@ -36,20 +33,12 @@ public class JwtUtils {
         String userName = userDetails.getUsername();
         return Jwts.builder()
                 .setSubject(userName)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationsMs))
-                .signWith(key())
+                .setIssuedAt(new Date()).setExpiration(new Date((new Date()).getTime() + jwtExpirationsMs)).signWith(key())
                 .compact();
     }
 
-
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        return Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(token).getBody().getSubject();
     }
 
     private Key key() {
@@ -59,10 +48,7 @@ public class JwtUtils {
     public boolean validateJwtToken(String authToken) {
         try {
             System.out.println("Validate");
-            Jwts.parserBuilder()
-                    .setSigningKey(key())
-                    .build()
-                    .parseClaimsJws(authToken);
+            Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(authToken);
             return true;
         } catch (MalformedJwtException e) {
             System.out.println("Invalid JWT token: " + e.getMessage());
